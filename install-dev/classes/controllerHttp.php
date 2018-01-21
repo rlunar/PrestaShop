@@ -25,9 +25,13 @@
  */
 
 use PrestaShopBundle\Install\LanguageList;
+use \DebugBar\StandardDebugBar;
 
 class InstallControllerHttp
 {
+    protected static $debugbar;
+    protected static $debugbarRenderer;
+
     /**
      * @var StepList List of installer steps
      */
@@ -129,6 +133,10 @@ class InstallControllerHttp
 
     public function __construct()
     {
+        self::$debugbar = new StandardDebugBar();
+        self::$debugbarRenderer = self::$debugbar->getJavascriptRenderer();
+        self::$debugbar["messages"]->addMessage("PrestaShop DebugBar!");
+
         $this->session = InstallSession::getInstance();
 
         // Set current language
@@ -233,7 +241,6 @@ class InstallControllerHttp
 
         // Submit form to go to next step
         if (Tools::getValue('submitNext')) {
-
             self::$steps->current()->getControllerInstance()->processNextStep();
 
             // If current step is validated, let's go to next step
@@ -246,8 +253,7 @@ class InstallControllerHttp
             if (self::$steps->getOffset() > self::getStepOffset($session->last_step)) {
                 $session->last_step = self::$steps->current()->getName();
             }
-        }
-        // Go to previous step
+        } // Go to previous step
         elseif (Tools::getValue('submitPrevious') && 0 !== self::$steps->getOffset()) {
             self::$steps->previous();
             $session->step = self::$steps->current()->getName();
@@ -259,7 +265,6 @@ class InstallControllerHttp
 
     public function init()
     {
-
     }
 
     public function process()
